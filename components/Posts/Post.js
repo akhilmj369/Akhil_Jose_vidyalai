@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import styled from '@emotion/styled';
+import axios from 'axios';
 
 const PostContainer = styled.div(() => ({
   width: '300px',
@@ -23,6 +24,8 @@ const Carousel = styled.div(() => ({
     display: 'none',
   },
   position: 'relative',
+  scrollSnapType: 'x mandatory',
+  scrollBehavior: 'smooth',
 }));
 
 const CarouselItem = styled.div(() => ({
@@ -46,7 +49,8 @@ const Content = styled.div(() => ({
 
 const Button = styled.button(() => ({
   position: 'absolute',
-  bottom: 0,
+  top: '50%',
+  transform: 'translateY(-50%)',
   backgroundColor: 'rgba(255, 255, 255, 0.5)',
   border: 'none',
   color: '#000',
@@ -63,13 +67,61 @@ const NextButton = styled(Button)`
   right: 10px;
 `;
 
+const HeaderContainer = styled.div(() => ({
+  display: 'flex',
+  alignItems: 'center',
+  padding: '10px',
+}));
+
+const Logo = styled.div(() => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '50px',
+  height: '50px',
+  backgroundColor: '#007bff',
+  color: 'white',
+  fontSize: '1em',
+  borderRadius: '50%',
+  fontWeight: 'bold',
+  marginRight: '10px', // Add some space between the logo and the text
+}));
+
+const TextContainer = styled.div(() => ({
+  display: 'flex',
+  flexDirection: 'column',
+}));
+
 const Post = ({ post }) => {
+  const [mails, setMails] = useState("");
+  const [names, setNames] = useState("");
+  const [initials, setInitials] = useState("");
   const carouselRef = useRef(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const { data } = await axios.get("https://jsonplaceholder.typicode.com/users");
+        const user = data.find(user => user.id === post.id);
+        if (user) {
+          const nameParts = user.name.split(' ');
+          const initials = nameParts.map(part => part.charAt(0)).join('');
+          setInitials(initials.toUpperCase());
+          setMails(user.email);
+          setNames(user.name);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [post.id]);
 
   const handleNextClick = () => {
     if (carouselRef.current) {
       carouselRef.current.scrollBy({
-        left: 50,
+        left: 290, // Adjust this value based on the width of the image plus padding/margin
         behavior: 'smooth',
       });
     }
@@ -78,7 +130,7 @@ const Post = ({ post }) => {
   const handlePrevClick = () => {
     if (carouselRef.current) {
       carouselRef.current.scrollBy({
-        left: -70,
+        left: -290, // Adjust this value based on the width of the image plus padding/margin
         behavior: 'smooth',
       });
     }
@@ -86,6 +138,15 @@ const Post = ({ post }) => {
 
   return (
     <PostContainer>
+      <HeaderContainer>
+        <Logo>
+          {initials}
+        </Logo>
+        <TextContainer>
+          <h3>{names}</h3>
+          <h4>{mails}</h4>
+        </TextContainer>
+      </HeaderContainer>
       <CarouselContainer>
         <Carousel ref={carouselRef}>
           {post.images.map((image, index) => (
@@ -107,12 +168,15 @@ const Post = ({ post }) => {
 
 Post.propTypes = {
   post: PropTypes.shape({
-    content: PropTypes.any,
-    images: PropTypes.shape({
-      map: PropTypes.func,
-    }),
-    title: PropTypes.any,
-  }),
+    id: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    body: PropTypes.string.isRequired,
+    images: PropTypes.arrayOf(
+      PropTypes.shape({
+        url: PropTypes.string.isRequired,
+      })
+    ).isRequired,
+  }).isRequired,
 };
 
 export default Post;

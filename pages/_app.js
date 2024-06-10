@@ -1,9 +1,10 @@
 import React from 'react';
+import { WindowWidthProvider } from '../components/hooks/WindowWidthContext'; // Adjust the path accordingly
 
 const App = ({ Component, pageProps }) => (
-  <React.Fragment>
+  <WindowWidthProvider>
     <Component {...pageProps} />
-  </React.Fragment>
+  </WindowWidthProvider>
 );
 
 export default App;

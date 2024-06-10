@@ -5,7 +5,7 @@ const Navbar = styled('nav')(() => ({
   backgroundColor: '#333',
   color: '#fff',
   width: '100%',
-  position: 'absolute',
+  position: 'fixed', // Change from 'absolute' to 'fixed'
   top: 0,
   left: 0,
   zIndex: 1000,
@@ -40,6 +40,8 @@ const TopNavbar = () => {
           </ListItem>
         </ul>
       </Navbar>
+      <div style={{ paddingTop: '50px' }}>
+      </div>
     </div>
   );
 };
