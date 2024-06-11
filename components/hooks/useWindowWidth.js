@@ -1,23 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useContext } from 'react';
+import { WindowWidthContext } from './WindowWidthContext'; // Adjust the path accordingly
 
-function useWindowWidth() {
-  const [isSmallerDevice, setIsSmallerDevice] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      setIsSmallerDevice(width < 500);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  return { isSmallerDevice };
-}
+const useWindowWidth = () => {
+  return useContext(WindowWidthContext);
+};
 
 export default useWindowWidth;
